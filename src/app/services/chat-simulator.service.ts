@@ -194,7 +194,7 @@ export class ChatSimulatorService {
         }
         else if (step === 'LUZ') {
           user.documentos!.recibo_luz = 'ENVIADO';
-          user.progreso = 'COMPLETADO'; // Finaliza el estado general
+          user.progreso = 'EN REVISION'; // Finaliza el estado general
           this.notifService.push(user.nombres, 'Completó carga de archivos ✅');
           this.docStep.set('FIN');
           this.currentState.set('IDLE');

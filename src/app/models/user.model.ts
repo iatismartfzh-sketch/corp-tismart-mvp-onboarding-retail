@@ -10,7 +10,7 @@ export interface UserMock {
   sistemaPensiones: 'AFP' | 'ONP' | 'PENDIENTE';
   hijos: number;
   documentosCargados: string[];
-  progreso: 'DOCUMENTACION' | 'FIRMA' | 'CAPACITACION' | 'COMPLETADO' | 'REPROBADO';
+  progreso: 'DOCUMENTACION' | 'FIRMA' | 'CAPACITACION' | 'COMPLETADO' | 'REPROBADO' | 'EN REVISION';
   perfil: PerfilUsuario; // <--- Nuevo campo
   documentos?: {        // <--- Nuevo objeto para No Colaboradores
     dni_adjunto: 'PENDIENTE' | 'ENVIADO' | 'VALIDADO';
