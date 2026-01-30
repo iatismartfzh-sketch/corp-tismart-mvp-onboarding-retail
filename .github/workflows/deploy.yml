@@ -8,7 +8,7 @@ on:
 env:
   AWS_REGION: us-east-1
   ECR_REPOSITORY: mvp-onboarding-retail
-  ECS_SERVICE: mvp-onboarding-retail-service
+  ECS_SERVICE: mvp-onboarding-retail-task-service
   ECS_CLUSTER: mvp-web-cluster
   CONTAINER_NAME: mvp-onboarding-retail-container
   TASK_DEFINITION_FAMILY: mvp-onboarding-retail-task 
