@@ -73,7 +73,6 @@ export let USER_POOL: UserMock[] = [
   }
 ];
 
-
 export let USER_POOL_NOTIFY: UserMock[] = [
   {
     id: 'USR-101',

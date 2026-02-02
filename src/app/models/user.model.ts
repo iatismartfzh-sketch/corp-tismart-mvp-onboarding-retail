@@ -1,4 +1,14 @@
 export type PerfilUsuario = 'COLABORADOR' | 'NO_COLABORADOR';
+export interface UserLog {
+  fecha?: Date;
+  fechaString: string;
+  evento: string;
+  detalle: string;
+  veredictoIA: 'CORRECTO' | 'INCORRECTO';
+  feedbackIA: string;
+  fueCorregido?: boolean;
+  capacitacion?: string;
+}
 export interface UserMock {
   id: string;
   dni: string;
@@ -11,11 +21,12 @@ export interface UserMock {
   hijos: number;
   documentosCargados: string[];
   progreso: 'DOCUMENTACION' | 'FIRMA' | 'CAPACITACION' | 'COMPLETADO' | 'REPROBADO' | 'EN REVISION';
-  perfil: PerfilUsuario; // <--- Nuevo campo
-  documentos?: {        // <--- Nuevo objeto para No Colaboradores
+  perfil: PerfilUsuario;
+  documentos?: {
     dni_adjunto: 'PENDIENTE' | 'ENVIADO' | 'VALIDADO';
     ruc_adjunto: 'PENDIENTE' | 'ENVIADO' | 'VALIDADO';
     recibo_luz: 'PENDIENTE' | 'ENVIADO' | 'VALIDADO';
   };
   dniVencido: boolean;
+  historial?: UserLog[];
 }

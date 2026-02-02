@@ -1,8 +1,8 @@
-// src/app/services/chat-simulator.service.ts
+
 import { Injectable, signal, inject } from '@angular/core';
 import { USER_POOL } from '../data/user-pool';
 import { UserMock } from '../models/user.model';
-import { PDF_DATA, TrainingService } from './training.service';
+import { TrainingService } from './training.service';
 import { NotificationService } from './notification.service';
 import { OpenAIService, PreguntaExamen } from './openai-examen.service';
 
@@ -36,6 +36,8 @@ export class ChatSimulatorService {
   private indexActual = 0;
 
   private isPushFlow = false;
+
+  private module: string = '';
 
   initChat() {
     this.messages.set([
@@ -124,34 +126,34 @@ export class ChatSimulatorService {
   }
 
   private handleTrainingLogic(input: string) {
-  const text = input.toUpperCase().trim();
-  const step = this.currentTrainingStep();
+    const text = input.toUpperCase().trim();
+    const step = this.currentTrainingStep();
 
-  if (step === 'PUSH_READING') {
-    if (text === 'SI') {
-      this.indexActual = 0;
-      this.aciertosExamen = 0;
-      this.addBotMsg("🚀 ¡Excelente! Iniciamos la evaluación. Recuerda que se aprueba con **90%**.");
-      this.iniciarCapacitacionConIA(this.currentModuleIndex);
-    } else {
-      this.addBotMsg("Por favor, confirma con un **'SI'** cuando estés listo.");
+    if (step === 'PUSH_READING') {
+      if (text === 'SI') {
+        this.indexActual = 0;
+        this.aciertosExamen = 0;
+        this.addBotMsg("🚀 ¡Excelente! Iniciamos la evaluación. Recuerda que se aprueba con **90%**.");
+        this.iniciarCapacitacionConIA(this.currentModuleIndex);
+      } else {
+        this.addBotMsg("Por favor, confirma con un **'SI'** cuando estés listo.");
+      }
+      return;
     }
-    return;
-  }
 
-  // Mantener tu lógica anterior para MENU, READING y EXAM
-  if (step === 'MENU') {
-    const index = parseInt(input) - 1;
-    if (index >= 0 && index < 3) {
-      this.currentModuleIndex = index;
-      this.iniciarCapacitacionConIA(index);
+    // Mantener tu lógica anterior para MENU, READING y EXAM
+    if (step === 'MENU') {
+      const index = parseInt(input) - 1;
+      if (index >= 0 && index < 3) {
+        this.currentModuleIndex = index;
+        this.iniciarCapacitacionConIA(index);
+      }
+    } else if (step === 'READING') {
+      this.lanzarPreguntaIA();
+    } else if (step === 'EXAM') {
+      this.procesarRespuestaIA(input);
     }
-  } else if (step === 'READING') {
-    this.lanzarPreguntaIA();
-  } else if (step === 'EXAM') {
-    this.procesarRespuestaIA(input);
   }
-}
 
 
   private startTrainingMenu() {
@@ -213,12 +215,10 @@ export class ChatSimulatorService {
 
 
   async iniciarCapacitacionConIA(idModulo: number) {
-    const manual = this.trainingService.getManual(idModulo); // Contiene los 10 strings reales
-          console.log("iniciarCapacitacionConIA manual", JSON.stringify(manual));
+    const manual = this.trainingService.getManual(idModulo);
     this.addBotMsg("🤖 Conectando con IA para procesar el material...");
-
+    this.module = manual.titulo;
     try {
-      console.log(" iniciarCapacitacionConIA generarExamenReal", manual.titulo, JSON.stringify(manual.paginas));
       this.examenActual = await this.openAIService.generarExamenReal(manual.titulo, manual.paginas);
       this.indexActual = 0;
       this.presentarPregunta();
@@ -252,146 +252,161 @@ private lanzarPreguntaIA() {
   this.currentTrainingStep.set('EXAM');
 } 
 
-public procesarRespuestaIA(inputUsuario: string) {
-  const item = this.examenActual[this.indexActual];
-  
-  // Normalización para evitar errores por tildes o mayúsculas
-  const respuestaUser = inputUsuario.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
-  
-  // Extraemos keywords del mock (Asegúrate de que tus keywords en mock-exam sean palabras sueltas)
-  const palabrasClave = (item.keywords || []).map(k => k.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""));
 
-  const aciertosKeywords = palabrasClave.filter(word => respuestaUser.includes(word));
-  const esCorrecto = aciertosKeywords.length >= 1; //
+async procesarRespuestaIA(inputUsuario: string) {
 
-  if (esCorrecto) {
-    this.aciertosExamen++; // Sumamos al puntaje global
-    this.addBotMsg("✅ **Respuesta validada.**");
-  } else {
-    this.addBotMsg(`❌ **Respuesta incompleta.**`);
-    this.addBotMsg(`💡 *Feedback:* ${item.feedback}`); // Mostramos la ayuda
-  }
+    const user = this.currentUser();
+    const item = this.examenActual[this.indexActual];
 
-  this.indexActual++; // Avanzamos a la siguiente de las 10 páginas
+    const respuestaUser = inputUsuario.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+    const palabrasClave = (item.keywords || []).map(k => k.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""));
+    const aciertosKeywords = palabrasClave.filter(word => respuestaUser.includes(word));
 
-  setTimeout(() => {
-    if (this.indexActual < 10) {
-      this.presentarPregunta(); // Siguiente página o pregunta
+    const esCorrecto = aciertosKeywords.length >= 1;
+
+    if (!user || !item) return;
+
+    // === EL CAMBIO CLAVE: GUARDAR EN EL HISTORIAL ===
+    this.trainingService.registrarEventoCapacitacion(
+      user.dni,
+      item.pregunta,
+      inputUsuario,
+      esCorrecto,
+      item.feedback,
+      this.module,
+    );
+    // ===============================================
+    this.currentUser.set({ ...user });
+    // 2. Tu lógica actual de feedback en el chat
+    if (esCorrecto) {
+      this.aciertosExamen++; // Sumamos al puntaje global
+      this.addBotMsg("✅ **Respuesta validada.**");
     } else {
-      this.mostrarResumenFinal(); // Fin del examen
+      this.addBotMsg(`❌ **Respuesta incompleta.**`);
+      this.addBotMsg(`💡 *Feedback:* ${item.feedback}`); // Mostramos la ayuda
     }
-  }, 1500);
-}
 
-private mostrarResumenFinal() {
-  const porcentaje = (this.aciertosExamen / 10) * 100;
-  const aprobado = porcentaje >= 90;
+   this.indexActual++; // Avanzamos a la siguiente de las 10 páginas
 
-  this.addBotMsg("🏁 **EVALUACIÓN FINALIZADA**");
-  this.addBotMsg(`📊 **Nota:** ${porcentaje}% (${this.aciertosExamen}/10).`);
-
-  if (aprobado) {
-    this.addBotMsg("✅ **Aprobado.** Tu registro ha sido actualizado en el Dashboard.");
-    this.actualizarProgresoUsuario('COMPLETADO');
-  } else {
-    this.addBotMsg("❌ **Desaprobado.** Se ha notificado a RR.HH. sobre tu resultado.");
-    this.actualizarProgresoUsuario('REPROBADO');
-  }
-
-  // Lógica de bifurcación de flujos:
-  if (this.isPushFlow) {
-    // FLUJO 2: WhatsApp RR.HH (Notificación)
-    this.addBotMsg("Gracias por completar la capacitación asignada. ¡Buen día!");
-    this.currentState.set('IDLE'); // El chat termina aquí
-    this.isPushFlow = false; // Reset para futuras entradas
-  } else {
-    // FLUJO 1: Bot de Capacitaciones (Autogestión)
-    this.addBotMsg("Regresando al menú principal...");
-    this.indexActual = 0;
-    this.aciertosExamen = 0;
-    
     setTimeout(() => {
-      this.currentTrainingStep.set('MENU');
-      this.mostrarMenuCapacitaciones(); // Vuelve al menú de opciones
-    }, 2000);
-  }
-}
-
-private actualizarProgresoUsuario(estado: 'COMPLETADO' | 'REPROBADO') {
-  const user = this.currentUser();
-  if (user) {
-    const userInPool = USER_POOL.find(u => u.dni === user.dni);
-    if (userInPool) userInPool.progreso = estado;
-    this.notifService.push(user.nombres, `Finalizó con ${estado} (${this.aciertosExamen}/10)`);
-  }
-}
-
-
-private async prepararExamenesConIA() {
-  const modulos = this.trainingService.getModulesList(); // ['Ciberseguridad Corporativa 2026', ...]
-  
-  for (const titulo of modulos) {
-    // Esto llenará el LocalStorage con tu data dummy automáticamente
-    try {
-      await this.openAIService.generarExamenReal(titulo, []); 
-    } catch (e) {
-      console.warn("Módulo no encontrado en mock-exams:", titulo);
-    }
-  }
-}
-
-private mostrarMenuCapacitaciones() {
-  // 1. Llamamos al método sin argumentos para obtener el array de títulos
-  // 2. Tipamos explícitamente (t: string, i: number) para eliminar el error TS7006
-  const opciones = this.trainingService.getModulesList().map((t: string, i: number) => {
-    return `${i + 1}. ${t}`;
-  });
-
-  this.messages.update(prev => [...prev, {
-    text: 'Selecciona el módulo que deseas realizar hoy:',
-    sender: 'bot',
-    timestamp: new Date(),
-    type: 'options',
-    options: opciones
-  }]);
-}
-
-private checkPendingPush(dni: string): boolean {
-  const pending = localStorage.getItem(`pending_push_${dni}`);
-  
-  if (pending) {
-    const { moduloId, mensaje } = JSON.parse(pending);
-    
-    // 1. Limpiamos el almacenamiento para que no salte cada vez que entra
-    localStorage.removeItem(`pending_push_${dni}`);
-
-    // 2. Marcamos que estamos en el flujo de WhatsApp Directo
-    this.isPushFlow = true; 
-    this.currentModuleIndex = 3;
-    this.currentState.set('TRAINING');
-    this.currentTrainingStep.set('PUSH_READING'); // Nuevo paso de espera de "SI"
-
-    // 3. Simulación de llegada de mensaje de RR.HH.
-    setTimeout(() => {
-      this.addBotMsg("🔔 **NOTIFICACIÓN DE RR.HH.**");
-      this.addBotMsg(`_"${mensaje}"_`);
-
-      // Enviamos el "Archivo"
-      this.messages.update(prev => [...prev, {
-        text: '📄 Guia_Capacitacion_Oficial.pdf',
-        sender: 'bot',
-        timestamp: new Date(),
-        type: 'file'
-      }]);
-
-      setTimeout(() => {
-        this.addBotMsg("¿Estás listo para iniciar la capacitación? (Recuerda leer el documento antes). Responde **'SI'** para empezar.");
-      }, 1000);
+      if (this.indexActual < 10) {
+        this.presentarPregunta(); // Siguiente página o pregunta
+      } else {
+        this.mostrarResumenFinal(); // Fin del examen
+      }
     }, 1500);
-
-    return true;
   }
-  return false;
-}
+  
+  private mostrarResumenFinal() {
+    const porcentaje = (this.aciertosExamen / 10) * 100;
+    const aprobado = porcentaje >= 90;
+
+    this.addBotMsg("🏁 **EVALUACIÓN FINALIZADA**");
+    this.addBotMsg(`📊 **Nota:** ${porcentaje}% (${this.aciertosExamen}/10).`);
+
+    if (aprobado) {
+      this.addBotMsg("✅ **Aprobado.** Tu registro ha sido actualizado en el Dashboard.");
+      this.actualizarProgresoUsuario('COMPLETADO');
+    } else {
+      this.addBotMsg("❌ **Desaprobado.** Se ha notificado a RR.HH. sobre tu resultado.");
+      this.actualizarProgresoUsuario('REPROBADO');
+    }
+
+    // Lógica de bifurcación de flujos:
+    if (this.isPushFlow) {
+      // FLUJO 2: WhatsApp RR.HH (Notificación)
+      this.addBotMsg("Gracias por completar la capacitación asignada. ¡Buen día!");
+      this.currentState.set('IDLE'); // El chat termina aquí
+      this.isPushFlow = false; // Reset para futuras entradas
+    } else {
+      // FLUJO 1: Bot de Capacitaciones (Autogestión)
+      this.addBotMsg("Regresando al menú principal...");
+      this.indexActual = 0;
+      this.aciertosExamen = 0;
+      
+      setTimeout(() => {
+        this.currentTrainingStep.set('MENU');
+        this.mostrarMenuCapacitaciones(); // Vuelve al menú de opciones
+      }, 2000);
+    }
+  }
+
+  private actualizarProgresoUsuario(estado: 'COMPLETADO' | 'REPROBADO') {
+    const user = this.currentUser();
+    if (user) {
+      const userInPool = USER_POOL.find(u => u.dni === user.dni);
+      if (userInPool) userInPool.progreso = estado;
+      this.notifService.push(user.nombres, `Finalizó con ${estado} (${this.aciertosExamen}/10)`);
+    }
+  }
+
+
+  private async prepararExamenesConIA() {
+    const modulos = this.trainingService.getModulesList(); // ['Ciberseguridad Corporativa 2026', ...]
+    
+    for (const titulo of modulos) {
+      // Esto llenará el LocalStorage con tu data dummy automáticamente
+      try {
+        await this.openAIService.generarExamenReal(titulo, []); 
+      } catch (e) {
+        console.warn("Módulo no encontrado en mock-exams:", titulo);
+      }
+    }
+  }
+
+  private mostrarMenuCapacitaciones() {
+    // 1. Llamamos al método sin argumentos para obtener el array de títulos
+    // 2. Tipamos explícitamente (t: string, i: number) para eliminar el error TS7006
+    const opciones = this.trainingService.getModulesList().map((t: string, i: number) => {
+      return `${i + 1}. ${t}`;
+    });
+
+    this.messages.update(prev => [...prev, {
+      text: 'Selecciona el módulo que deseas realizar hoy:',
+      sender: 'bot',
+      timestamp: new Date(),
+      type: 'options',
+      options: opciones
+    }]);
+  }
+
+  private checkPendingPush(dni: string): boolean {
+    const pending = localStorage.getItem(`pending_push_${dni}`);
+    
+    if (pending) {
+      const { moduloId, mensaje } = JSON.parse(pending);
+      
+      // 1. Limpiamos el almacenamiento para que no salte cada vez que entra
+      localStorage.removeItem(`pending_push_${dni}`);
+
+      // 2. Marcamos que estamos en el flujo de WhatsApp Directo
+      this.isPushFlow = true; 
+      this.currentModuleIndex = 3;
+      this.currentState.set('TRAINING');
+      this.currentTrainingStep.set('PUSH_READING'); // Nuevo paso de espera de "SI"
+
+      // 3. Simulación de llegada de mensaje de RR.HH.
+      setTimeout(() => {
+        this.addBotMsg("🔔 **NOTIFICACIÓN DE RR.HH.**");
+        this.addBotMsg(`_"${mensaje}"_`);
+
+        // Enviamos el "Archivo"
+        this.messages.update(prev => [...prev, {
+          text: '📄 Guia_Capacitacion_Oficial.pdf',
+          sender: 'bot',
+          timestamp: new Date(),
+          type: 'file'
+        }]);
+
+        setTimeout(() => {
+          this.addBotMsg("¿Estás listo para iniciar la capacitación? (Recuerda leer el documento antes). Responde **'SI'** para empezar.");
+        }, 1000);
+      }, 1500);
+
+      return true;
+    }
+    return false;
+  }
+
 
 }

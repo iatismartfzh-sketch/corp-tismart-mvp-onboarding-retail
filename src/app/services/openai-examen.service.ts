@@ -14,7 +14,6 @@ export class OpenAIService {
   private readonly TTL = 6 * 60 * 60 * 1000; // 6 horas
 
   async generarExamenReal(titulo: string, paginas: string[]): Promise<PreguntaExamen[]> {
-    console.log("generarExamenReal", titulo, JSON.stringify(paginas));
     const storageKey = `examen_${titulo.replace(/\s/g, '_')}`;
     const cached = localStorage.getItem(storageKey);
 
@@ -29,8 +28,8 @@ export class OpenAIService {
 
     // 2. Si no hay caché o expiró, usamos nuestra "Base de Datos de Variables"
     console.log(`🧠 Generando "${titulo}" desde memoria local (Data Dummy de IA).`);
-    const dataOffline = EXAMENES_DUMMY[titulo];
-    
+    let dataOffline: any[] = EXAMENES_DUMMY[titulo];
+
     if (!dataOffline) {
       throw new Error(`No se encontró contenido para el módulo: ${titulo}`);
     }

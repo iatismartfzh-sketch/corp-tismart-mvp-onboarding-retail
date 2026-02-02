@@ -2,6 +2,7 @@ import { Component, OnInit, inject, ElementRef, ViewChild } from '@angular/core'
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ChatSimulatorService } from '../../services/chat-simulator.service';
+import { TrainingService } from '../../services/training.service';
 
 @Component({
   selector: 'app-simulator',
@@ -82,6 +83,7 @@ import { ChatSimulatorService } from '../../services/chat-simulator.service';
 })
 export class SimulatorComponent implements OnInit {
   chatService = inject(ChatSimulatorService);
+  trainingService = inject(TrainingService);
   userInput = '';
 
   ngOnInit() {
@@ -107,6 +109,23 @@ export class SimulatorComponent implements OnInit {
   // Simula que el usuario escribió la opción seleccionada
     const optionNumber = option.trim().charAt(0); 
     this.chatService.processMessage(optionNumber, 'text');
+  }
+
+  procesarRespuestaDelUsuario(mensaje: string, usuarioDni: string) {
+    const preguntaActual = "¿Qué EPPS son obligatorios?";
+    const esCorrecta = mensaje.toLowerCase().includes('casco');
+    const feedbackIA = esCorrecta 
+      ? "¡Excelente! Has identificado el equipo correctamente." 
+      : "Incorrecto. Recuerda que según la norma G.050 el casco y botas son obligatorios. Revisa el módulo de Seguridad.";
+
+    this.trainingService.registrarEventoCapacitacion(
+      usuarioDni, 
+      preguntaActual, 
+      mensaje, 
+      esCorrecta, 
+      feedbackIA,
+      ''
+    );
   }
 
 }
