@@ -296,10 +296,10 @@ async procesarRespuestaIA(inputUsuario: string) {
       this.aciertosExamen++; // Sumamos al puntaje global
       this.addBotMsg(learnedCorrect
         ? "✅ **Respuesta correcta (aprendido por entrenamiento del admin).**"
-        : "✅ **Respuesta validada.**"
+        : "✅ **Respuesta correcta.**"
       );
     } else {
-      this.addBotMsg(`❌ **Respuesta incompleta.**`);
+      this.addBotMsg(`❌ **Respuesta incorrecta.**`);
       this.addBotMsg(`💡 *Feedback:* ${item.feedback}`); // Mostramos la ayuda
     }
 
