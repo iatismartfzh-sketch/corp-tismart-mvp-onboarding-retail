@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { EXAMENES_DUMMY } from '../data/mock-exam';
 
 export interface PreguntaExamen {
+  id: string;
   pregunta: string;
   keywords: string[];
   respuestaCorrecta: number;

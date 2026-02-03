@@ -53,7 +53,8 @@ export class TrainingService {
     respuestaUsuario: string, 
     esCorrecta: boolean, 
     feedbackIA: string,
-    modulo: string
+    modulo: string,
+    questionId?: string
   ) {
     const usuario = USER_POOL.find(u => u.dni === dni);
     if (usuario) {
@@ -76,7 +77,10 @@ export class TrainingService {
         veredictoIA: esCorrecta ? 'CORRECTO' : 'INCORRECTO',
         feedbackIA: esCorrecta ? '' : feedbackIA,
         fueCorregido: false,
-        capacitacion: modulo
+        capacitacion: modulo,
+        questionId,
+        preguntaRaw: pregunta,
+        respuestaRaw: respuestaUsuario
       };
 
       // Se inserta al inicio para que en el dashboard aparezca lo más reciente primero

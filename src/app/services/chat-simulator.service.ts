@@ -5,6 +5,7 @@ import { UserMock } from '../models/user.model';
 import { TrainingService } from './training.service';
 import { NotificationService } from './notification.service';
 import { OpenAIService, PreguntaExamen } from './openai-examen.service';
+import { KnowledgeBaseService } from './knowledge-base.service';
 
 export type ChatState = 'AWAITING_LEGAL' | 'AWAITING_DNI' | 'DOCUMENTING' | 'TRAINING' | 'AWAITING_DOCS' | 'IDLE';
 export type TrainingStep = 'MENU' | 'READING' | 'EXAM' | 'PUSH_READING';
@@ -22,7 +23,7 @@ export class ChatSimulatorService {
   messages = signal<Message[]>([]);
   currentUser = signal<UserMock | null>(null);
   currentState = signal<ChatState>('AWAITING_LEGAL');
-  
+
   private currentTrainingStep = signal<TrainingStep>('MENU');
   private docStep = signal<'DNI' | 'RUC' | 'LUZ' | 'FIN'>('DNI');
   private currentModuleIndex = 0;
@@ -31,6 +32,7 @@ export class ChatSimulatorService {
   private trainingService = inject(TrainingService);
   private notifService = inject(NotificationService);
   private openAIService = inject(OpenAIService);
+  private kbService = inject(KnowledgeBaseService);
 
   private examenActual: PreguntaExamen[] = [];
   private indexActual = 0;
@@ -40,6 +42,18 @@ export class ChatSimulatorService {
   private module: string = '';
 
   initChat() {
+    // Reset state for a fresh chat session
+    this.currentUser.set(null);
+    this.currentState.set('AWAITING_LEGAL');
+    this.currentTrainingStep.set('MENU');
+    this.docStep.set('DNI');
+    this.currentModuleIndex = 0;
+    this.aciertosExamen = 0;
+    this.examenActual = [];
+    this.indexActual = 0;
+    this.isPushFlow = false;
+    this.module = '';
+
     this.messages.set([
       { text: '¡Hola! Bienvenido al proceso de Onboarding de Retailer Peruano. 🇵🇪', sender: 'bot', timestamp: new Date(), type: 'text' },
       { text: '¿Aceptas nuestra política de protección de datos (Ley 29733)? (Responde: SI)', sender: 'bot', timestamp: new Date(), type: 'text' }
@@ -65,44 +79,43 @@ export class ChatSimulatorService {
         if (text.includes('SI')) {
           this.currentState.set('AWAITING_DNI');
           this.addBotMsg('¡Gracias! Ahora, ingresa tu número de DNI (8 dígitos).');
+        } else {
+          this.addBotMsg('❌ No puedes continuar sin aceptar la política. Responde **SI** para continuar.');
         }
         break;
 
       case 'AWAITING_DNI':
-        const found = USER_POOL.find(u => u.dni === input.trim());
+        const dniInput = input.trim();
+        const isValidDni = /^\d{8}$/.test(dniInput);
+        if (!isValidDni) {
+          this.addBotMsg('❌ DNI inválido. Ingresa un DNI de 8 dígitos.');
+          return;
+        }
+
+        const found = USER_POOL.find(u => u.dni === dniInput);
         if (found) {
           this.currentUser.set(found);
+          let hasPush = false;
           if (typeof window !== 'undefined') {
             sessionStorage.setItem('active_chat_dni', found.dni);
-            const hasPush = this.checkPendingPush(found.dni);
-            if (!hasPush) {
-              if (found.perfil === 'NO_COLABORADOR') {
-                this.currentState.set('AWAITING_DOCS');
-                this.addBotMsg(`Hola ${found.nombres}. Por favor, adjunta tu DNI.`);
-              } else {
-                this.currentState.set('TRAINING');
-                this.addBotMsg(`Hola ${found.nombres}. He activado tu panel de capacitaciones.`);
-                this.mostrarMenuCapacitaciones();
-              }
-            }
+            hasPush = this.checkPendingPush(found.dni);
           }
-
 
           if (found.perfil === 'NO_COLABORADOR') {
             this.currentState.set('AWAITING_DOCS');
             this.docStep.set('DNI');
             this.addBotMsg(`Hola ${found.nombres}, como Proveedor necesitamos tu documentación. Por favor, adjunta tu **DNI**.`);
-          } else {
+          } else if (!hasPush) {
             this.currentState.set('TRAINING');
             this.addBotMsg(`Hola ${found.nombres}. He activado tu panel de capacitaciones.`);
             this.prepararExamenesConIA();
             this.mostrarMenuCapacitaciones();
           }
 
-                      this.notifService.push(found.nombres, 'Se identificó en el simulador');
+          this.notifService.push(found.nombres, 'Se identificó en el simulador');
 
         } else {
-          this.addBotMsg('❌ DNI no encontrado.');
+          this.addBotMsg('❌ DNI no encontrado. Vuelve a intentar.');
         }
         break;
 
@@ -157,9 +170,9 @@ export class ChatSimulatorService {
 
 
   private startTrainingMenu() {
-    this.messages.update(prev => [...prev, { 
-        text: 'Elige una capacitación:', 
-        sender: 'bot', 
+    this.messages.update(prev => [...prev, {
+        text: 'Elige una capacitación:',
+        sender: 'bot',
         timestamp: new Date(),
         type: 'options',
         options: ['1. Uso de Caja y POS', '2. Seguridad y Salud (SST)', '3. Prevención de Pérdidas']
@@ -174,20 +187,20 @@ export class ChatSimulatorService {
   private handleFileProcessing(input: string) {
     const user = this.currentUser();
     const fileName = input.toLowerCase();
-    
+
     // Si no es colaborador, seguimos el flujo de checklist
     if (user?.perfil === 'NO_COLABORADOR') {
       this.addBotMsg(`Analizando documento: ${input}...`);
-      
+
       setTimeout(() => {
         const step = this.docStep();
-        
+
         if (step === 'DNI') {
           user.documentos!.dni_adjunto = 'ENVIADO'; // Actualiza el modelo
           this.notifService.push(user.nombres, 'Subió DNI 🪪'); // Dispara notificación
           this.docStep.set('RUC');
           this.addBotMsg('✅ DNI verificado. Ahora, por favor adjunta tu **Ficha RUC**.');
-        } 
+        }
         else if (step === 'RUC') {
           user.documentos!.ruc_adjunto = 'ENVIADO';
           this.notifService.push(user.nombres, 'Subió RUC 📄');
@@ -233,10 +246,10 @@ private presentarPregunta() {
 
   this.addBotMsg(`📖 **PÁGINA ${this.indexActual + 1} DE 10**`);
   this.addBotMsg(`_${textoPagina}_`);
-  
+
   // Cambiamos el estado a READING
   this.currentTrainingStep.set('READING');
-  
+
   setTimeout(() => {
     this.addBotMsg("Confirma con un **'ok'** o cualquier mensaje cuando termines de leer para iniciar la trivia de esta página. 👇");
   }, 800);
@@ -244,27 +257,27 @@ private presentarPregunta() {
 
 private lanzarPreguntaIA() {
   const item = this.examenActual[this.indexActual];
-  
+
   this.addBotMsg(`❓ **EVALUACIÓN PÁG. ${this.indexActual + 1}:**`);
   this.addBotMsg(`${item.pregunta}`);
   this.addBotMsg("_Responde escribiendo detalladamente lo que comprendiste..._");
-  
+
   this.currentTrainingStep.set('EXAM');
-} 
+}
 
 
 async procesarRespuestaIA(inputUsuario: string) {
 
     const user = this.currentUser();
     const item = this.examenActual[this.indexActual];
+    if (!user || !item) return;
 
     const respuestaUser = inputUsuario.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
     const palabrasClave = (item.keywords || []).map(k => k.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""));
     const aciertosKeywords = palabrasClave.filter(word => respuestaUser.includes(word));
 
-    const esCorrecto = aciertosKeywords.length >= 1;
-
-    if (!user || !item) return;
+    const learnedCorrect = this.kbService.isLearnedCorrect(item.id, inputUsuario);
+    const esCorrecto = learnedCorrect ? true : (aciertosKeywords.length >= 1);
 
     // === EL CAMBIO CLAVE: GUARDAR EN EL HISTORIAL ===
     this.trainingService.registrarEventoCapacitacion(
@@ -274,13 +287,17 @@ async procesarRespuestaIA(inputUsuario: string) {
       esCorrecto,
       item.feedback,
       this.module,
+      item.id,
     );
     // ===============================================
     this.currentUser.set({ ...user });
     // 2. Tu lógica actual de feedback en el chat
     if (esCorrecto) {
       this.aciertosExamen++; // Sumamos al puntaje global
-      this.addBotMsg("✅ **Respuesta validada.**");
+      this.addBotMsg(learnedCorrect
+        ? "✅ **Respuesta correcta (aprendido por entrenamiento del admin).**"
+        : "✅ **Respuesta validada.**"
+      );
     } else {
       this.addBotMsg(`❌ **Respuesta incompleta.**`);
       this.addBotMsg(`💡 *Feedback:* ${item.feedback}`); // Mostramos la ayuda
@@ -296,7 +313,7 @@ async procesarRespuestaIA(inputUsuario: string) {
       }
     }, 1500);
   }
-  
+
   private mostrarResumenFinal() {
     const porcentaje = (this.aciertosExamen / 10) * 100;
     const aprobado = porcentaje >= 90;
@@ -323,7 +340,7 @@ async procesarRespuestaIA(inputUsuario: string) {
       this.addBotMsg("Regresando al menú principal...");
       this.indexActual = 0;
       this.aciertosExamen = 0;
-      
+
       setTimeout(() => {
         this.currentTrainingStep.set('MENU');
         this.mostrarMenuCapacitaciones(); // Vuelve al menú de opciones
@@ -343,11 +360,11 @@ async procesarRespuestaIA(inputUsuario: string) {
 
   private async prepararExamenesConIA() {
     const modulos = this.trainingService.getModulesList(); // ['Ciberseguridad Corporativa 2026', ...]
-    
+
     for (const titulo of modulos) {
       // Esto llenará el LocalStorage con tu data dummy automáticamente
       try {
-        await this.openAIService.generarExamenReal(titulo, []); 
+        await this.openAIService.generarExamenReal(titulo, []);
       } catch (e) {
         console.warn("Módulo no encontrado en mock-exams:", titulo);
       }
@@ -372,15 +389,15 @@ async procesarRespuestaIA(inputUsuario: string) {
 
   private checkPendingPush(dni: string): boolean {
     const pending = localStorage.getItem(`pending_push_${dni}`);
-    
+
     if (pending) {
       const { moduloId, mensaje } = JSON.parse(pending);
-      
+
       // 1. Limpiamos el almacenamiento para que no salte cada vez que entra
       localStorage.removeItem(`pending_push_${dni}`);
 
       // 2. Marcamos que estamos en el flujo de WhatsApp Directo
-      this.isPushFlow = true; 
+      this.isPushFlow = true;
       this.currentModuleIndex = 3;
       this.currentState.set('TRAINING');
       this.currentTrainingStep.set('PUSH_READING'); // Nuevo paso de espera de "SI"

@@ -3,6 +3,7 @@ import { PreguntaExamen } from '../services/openai-examen.service';
 export const EXAMENES_DUMMY: Record<string, PreguntaExamen[]> = {
   'Ciberseguridad Corporativa 2026': [
     {
+      "id": "ciber_01",
       "pregunta": "¿Quién es responsable de la ciberseguridad según los lineamientos del Retailer Peruano en 2026?",
       "keywords": [
         "todos", "colaboradores", "personal", "compartida"
@@ -11,12 +12,14 @@ export const EXAMENES_DUMMY: Record<string, PreguntaExamen[]> = {
       "feedback": "Debes reforzar la pág. 1, sección Introducción sobre responsabilidad compartida."
     },
     {
+      "id": "ciber_02",
       "pregunta": "¿Cuál es el requisito mínimo obligatorio para una contraseña corporativa segura?",
       "keywords": ["16", "caracteres", "unicode", "símbolo"],
       "respuestaCorrecta": 1,
       "feedback": "Debes reforzar la pág. 2, sección Gestión de Contraseñas Seguras."
     },
     {
+      "id": "ciber_03",
       "pregunta": "¿Cuál es la acción correcta ante la recepción de un correo sospechoso?",
       "keywords": [
         "Eliminar el correo inmediatamente sin reportarlo",
@@ -26,6 +29,7 @@ export const EXAMENES_DUMMY: Record<string, PreguntaExamen[]> = {
       "feedback": "Debes reforzar la pág. 3, sección Phishing y Correos Sospechosos."
     },
     {
+      "id": "ciber_04",
       "pregunta": "¿Qué práctica está prohibida respecto al uso de dispositivos externos?",
       "keywords": [
         "Conectar USB personales a equipos corporativos",
@@ -35,6 +39,7 @@ export const EXAMENES_DUMMY: Record<string, PreguntaExamen[]> = {
       "feedback": "Debes reforzar la pág. 4, sección Seguridad de Hardware y Dispositivos."
     },
     {
+      "id": "ciber_05",
       "pregunta": "¿Cómo debe realizarse el acceso remoto a los sistemas corporativos?",
       "keywords": [
         "Mediante cualquier red Wi-Fi disponible",
@@ -44,6 +49,7 @@ export const EXAMENES_DUMMY: Record<string, PreguntaExamen[]> = {
       "feedback": "Debes reforzar la pág. 5, sección Redes y Trabajo Remoto."
     },
     {
+      "id": "ciber_06",
       "pregunta": "¿Cuál es una regla clave sobre el uso del código MFA?",
       "keywords": [
         "Puede compartirse con soporte técnico si es necesario",
@@ -53,6 +59,7 @@ export const EXAMENES_DUMMY: Record<string, PreguntaExamen[]> = {
       "feedback": "Debes reforzar la pág. 6, sección Autenticación de Doble Factor (MFA)."
     },
     {
+      "id": "ciber_07",
       "pregunta": "¿Cuál es la acción correcta frente a una solicitud no validada de información interna?",
       "keywords": [
         "Entregar la información si parece urgente",
@@ -62,6 +69,7 @@ export const EXAMENES_DUMMY: Record<string, PreguntaExamen[]> = {
       "feedback": "Debes reforzar la pág. 7, sección Ingeniería Social."
     },
     {
+      "id": "ciber_08",
       "pregunta": "¿Qué práctica viola la política de Escritorio Limpio?",
       "keywords": [
         "Guardar documentos físicos al finalizar la jornada",
@@ -71,6 +79,7 @@ export const EXAMENES_DUMMY: Record<string, PreguntaExamen[]> = {
       "feedback": "Debes reforzar la pág. 8, sección Política de Escritorio Limpio."
     },
     {
+      "id": "ciber_09",
       "pregunta": "¿Por qué es obligatorio reiniciar los equipos cada martes?",
       "keywords": [
         "Para mejorar el rendimiento del equipo",
@@ -80,6 +89,7 @@ export const EXAMENES_DUMMY: Record<string, PreguntaExamen[]> = {
       "feedback": "Debes reforzar la pág. 9, sección Actualizaciones y Parches de Seguridad."
     },
     {
+      "id": "ciber_10",
       "pregunta": "¿Cuál es la primera acción ante un incidente de ransomware?",
       "keywords": [
         "Apagar inmediatamente el equipo y llamar al anexo 911",
@@ -91,6 +101,7 @@ export const EXAMENES_DUMMY: Record<string, PreguntaExamen[]> = {
   ],
     'Hostigamiento Sexual Laboral': [
     {
+      "id": "hostigamiento_01",
       "pregunta": "¿Qué derecho fundamental se ve directamente vulnerado por el hostigamiento sexual laboral según la Ley 30364?",
       "keywords": [
         "El derecho a la productividad empresarial",
@@ -100,6 +111,7 @@ export const EXAMENES_DUMMY: Record<string, PreguntaExamen[]> = {
       "feedback": "Revisa la pág. 1, sección Introducción y Marco Legal sobre derechos fundamentales afectados."
     },
     {
+      "id": "hostigamiento_02",
       "pregunta": "¿Cuál de las siguientes situaciones corresponde al tipo de hostigamiento sexual 'quid pro quo'?",
       "keywords": [
         "Conductas reiteradas que generan un ambiente laboral hostil",
@@ -109,6 +121,7 @@ export const EXAMENES_DUMMY: Record<string, PreguntaExamen[]> = {
       "feedback": "Revisa la pág. 2, sección Definiciones y Tipos, especialmente la clasificación de hostigamiento."
     },
     {
+      "id": "hostigamiento_03",
       "pregunta": "¿Cómo debe estar conformado el Comité de Intervención frente al Hostigamiento Sexual?",
       "keywords": [
         "Por 3 miembros designados por el empleador",
@@ -118,6 +131,7 @@ export const EXAMENES_DUMMY: Record<string, PreguntaExamen[]> = {
       "feedback": "Revisa la pág. 3, sección Comité de Intervención y requisitos de conformación."
     },
     {
+      "id": "hostigamiento_04",
       "pregunta": "¿En qué plazo máximo el empleador debe dictar medidas de protección tras una denuncia?",
       "keywords": [
         "Dentro de las 24 horas",
@@ -127,6 +141,7 @@ export const EXAMENES_DUMMY: Record<string, PreguntaExamen[]> = {
       "feedback": "Revisa la pág. 4, sección Medidas de Protección a la Víctima."
     },
     {
+      "id": "hostigamiento_05",
       "pregunta": "¿La protección frente al hostigamiento sexual aplica en modalidad de trabajo remoto?",
       "keywords": [
         "No, solo aplica al trabajo presencial",
@@ -136,6 +151,7 @@ export const EXAMENES_DUMMY: Record<string, PreguntaExamen[]> = {
       "feedback": "Revisa la pág. 5, sección Procedimientos en Trabajo Remoto y Presencial."
     },
     {
+      "id": "hostigamiento_06",
       "pregunta": "¿Qué práctica está expresamente prohibida durante el proceso de investigación?",
       "keywords": [
         "El careo entre la persona denunciante y la denunciada",
@@ -145,6 +161,7 @@ export const EXAMENES_DUMMY: Record<string, PreguntaExamen[]> = {
       "feedback": "Revisa la pág. 6, sección Prohibiciones Expresas: Revictimización y Careo."
     },
     {
+      "id": "hostigamiento_07",
       "pregunta": "¿Cuál es la última etapa del proceso de investigación interna por hostigamiento sexual?",
       "keywords": [
         "La investigación y recopilación de pruebas",
@@ -154,6 +171,7 @@ export const EXAMENES_DUMMY: Record<string, PreguntaExamen[]> = {
       "feedback": "Revisa la pág. 7, sección Etapas de la Investigación Interna."
     },
     {
+      "id": "hostigamiento_08",
       "pregunta": "¿Cuál es la sanción máxima que puede imponerse ante una falta muy grave de hostigamiento sexual?",
       "keywords": [
         "Amonestación escrita",
@@ -163,6 +181,7 @@ export const EXAMENES_DUMMY: Record<string, PreguntaExamen[]> = {
       "feedback": "Revisa la pág. 8, sección Régimen Sancionador."
     },
     {
+      "id": "hostigamiento_09",
       "pregunta": "¿Con qué frecuencia mínima deben realizarse las capacitaciones obligatorias sobre hostigamiento sexual?",
       "keywords": [
         "Cada dos años",
@@ -172,6 +191,7 @@ export const EXAMENES_DUMMY: Record<string, PreguntaExamen[]> = {
       "feedback": "Revisa la pág. 9, sección Prevención y Capacitación."
     },
     {
+      "id": "hostigamiento_10",
       "pregunta": "¿Cuál es uno de los indicadores clave que evalúa el sistema de Compliance en hostigamiento sexual?",
       "keywords": [
         "El número de ventas mensuales",
@@ -183,6 +203,7 @@ export const EXAMENES_DUMMY: Record<string, PreguntaExamen[]> = {
   ],
     'Sostenibilidad y Residuos': [
     {
+      "id": "sostenibilidad_01",
       "pregunta": "¿Cuál es el enfoque estratégico del Plan Cero Plásticos dentro del marco ESG?",
       "keywords": [
         "Reducir costos operativos sin considerar impactos ambientales",
@@ -192,6 +213,7 @@ export const EXAMENES_DUMMY: Record<string, PreguntaExamen[]> = {
       "feedback": "Página 1: Revisa la Introducción a la Sostenibilidad ESG y la integración de los tres pilares."
     },
     {
+      "id": "sostenibilidad_02",
       "pregunta": "¿Cuál es el objetivo principal de aplicar la norma ISO 14001 en la gestión de residuos?",
       "keywords": [
         "Cumplir requisitos legales sin evaluación de impactos",
@@ -201,6 +223,7 @@ export const EXAMENES_DUMMY: Record<string, PreguntaExamen[]> = {
       "feedback": "Página 2: Refuerza el Marco Normativo y el enfoque de mejora continua de ISO 14001."
     },
     {
+      "id": "sostenibilidad_03",
       "pregunta": "¿A quiénes aplica obligatoriamente el Plan Cero Plásticos?",
       "keywords": [
         "Solo al personal administrativo de la sede principal",
@@ -210,6 +233,7 @@ export const EXAMENES_DUMMY: Record<string, PreguntaExamen[]> = {
       "feedback": "Página 3: Revisa los Objetivos del Plan y su alcance organizacional."
     },
     {
+      "id": "sostenibilidad_04",
       "pregunta": "¿Qué tipo de residuos deben depositarse exclusivamente en los tachos rojos?",
       "keywords": [
         "Plásticos limpios y papel reciclable",
@@ -219,6 +243,7 @@ export const EXAMENES_DUMMY: Record<string, PreguntaExamen[]> = {
       "feedback": "Página 4: Repasa la Clasificación de Residuos correspondiente a los Tachos Rojos."
     },
     {
+      "id": "sostenibilidad_05",
       "pregunta": "¿Cuál es la combinación correcta de residuos para los tachos azul y blanco?",
       "keywords": [
         "Azul: papel y cartón limpio / Blanco: plásticos limpios y secos",
@@ -228,6 +253,7 @@ export const EXAMENES_DUMMY: Record<string, PreguntaExamen[]> = {
       "feedback": "Página 5: Refuerza la Clasificación de Residuos en Tachos Azules y Blancos."
     },
     {
+      "id": "sostenibilidad_06",
       "pregunta": "¿Por qué está prohibido mezclar residuos orgánicos con reciclables?",
       "keywords": [
         "Porque incrementa el volumen total de residuos",
@@ -237,6 +263,7 @@ export const EXAMENES_DUMMY: Record<string, PreguntaExamen[]> = {
       "feedback": "Página 6: Revisa la sección Segregación en la Fuente y sus implicancias."
     },
     {
+      "id": "sostenibilidad_07",
       "pregunta": "¿Qué práctica está expresamente prohibida en todas las sedes corporativas?",
       "keywords": [
         "El uso de envases reutilizables",
@@ -246,6 +273,7 @@ export const EXAMENES_DUMMY: Record<string, PreguntaExamen[]> = {
       "feedback": "Página 7: Repasa la Prohibición de Envases de un Solo Uso."
     },
     {
+      "id": "sostenibilidad_08",
       "pregunta": "¿Cuándo se aplica una penalización al bono de Métricas Verdes del colaborador?",
       "keywords": [
         "Al usar envases prohibidos más de 3 veces en un mes",
@@ -255,6 +283,7 @@ export const EXAMENES_DUMMY: Record<string, PreguntaExamen[]> = {
       "feedback": "Página 8: Refuerza el Régimen de Penalizaciones y el criterio de reincidencia."
     },
     {
+      "id": "sostenibilidad_09",
       "pregunta": "¿Para qué se utilizan los registros del volumen de residuos reciclados?",
       "keywords": [
         "Solo para control interno operativo",
@@ -264,6 +293,7 @@ export const EXAMENES_DUMMY: Record<string, PreguntaExamen[]> = {
       "feedback": "Página 9: Revisa la sección Monitoreo y Reportes de Sostenibilidad."
     },
     {
+      "id": "sostenibilidad_10",
       "pregunta": "¿Con qué frecuencia se revisa el Plan Cero Plásticos para asegurar la mejora continua?",
       "keywords": [
         "De manera semestral incorporando innovación y alianzas certificadas",
@@ -275,6 +305,7 @@ export const EXAMENES_DUMMY: Record<string, PreguntaExamen[]> = {
   ],
   'Herramienta IA para Developers': [
     {
+      "id": "ia_dev_01",
       "pregunta": "¿Cuál es el principal beneficio de usar herramientas de IA en el desarrollo de software según la introducción?",
       "keywords": [
         "Incrementar la productividad y reducir tiempos de entrega",
@@ -284,6 +315,7 @@ export const EXAMENES_DUMMY: Record<string, PreguntaExamen[]> = {
       "feedback": "Debes reforzar la pág 1, sección Introducción a la IA en el desarrollo de software"
     },
     {
+      "id": "ia_dev_02",
       "pregunta": "¿Qué función clave cumplen los asistentes de programación con IA?",
       "keywords": [
         "Sustituir a los equipos de ciberseguridad",
@@ -293,6 +325,7 @@ export const EXAMENES_DUMMY: Record<string, PreguntaExamen[]> = {
       "feedback": "Debes reforzar la pág 2, sección Asistentes de Programación con IA"
     },
     {
+      "id": "ia_dev_03",
       "pregunta": "¿Por qué los LLM son relevantes desde un enfoque de seguridad?",
       "keywords": [
         "Porque permiten generar exploits automáticamente",
@@ -302,6 +335,7 @@ export const EXAMENES_DUMMY: Record<string, PreguntaExamen[]> = {
       "feedback": "Debes reforzar la pág 3, sección Modelos de Lenguaje (LLM)"
     },
     {
+      "id": "ia_dev_04",
       "pregunta": "¿Cuál es la ventaja principal de conocer frameworks de Machine Learning para un developer?",
       "keywords": [
         "Ampliar capacidades técnicas para construir y desplegar modelos",
@@ -311,6 +345,7 @@ export const EXAMENES_DUMMY: Record<string, PreguntaExamen[]> = {
       "feedback": "Debes reforzar la pág 4, sección Frameworks de Machine Learning"
     },
     {
+      "id": "ia_dev_05",
       "pregunta": "¿Cómo contribuye la IA al proceso de testing de software?",
       "keywords": [
         "Eliminando la necesidad de pruebas",
@@ -320,6 +355,7 @@ export const EXAMENES_DUMMY: Record<string, PreguntaExamen[]> = {
       "feedback": "Debes reforzar la pág 5, sección IA para Testing"
     },
     {
+      "id": "ia_dev_06",
       "pregunta": "¿Qué aporta la IA al análisis de código y la seguridad?",
       "keywords": [
         "Detección de vulnerabilidades y malas prácticas",
@@ -329,6 +365,7 @@ export const EXAMENES_DUMMY: Record<string, PreguntaExamen[]> = {
       "feedback": "Debes reforzar la pág 6, sección IA para Análisis de Código y Seguridad"
     },
     {
+      "id": "ia_dev_07",
       "pregunta": "¿Cuál es un uso clave de la IA en DevOps?",
       "keywords": [
         "Predecir fallos y optimizar pipelines CI/CD",
@@ -338,6 +375,7 @@ export const EXAMENES_DUMMY: Record<string, PreguntaExamen[]> = {
       "feedback": "Debes reforzar la pág 7, sección Herramientas de IA para DevOps"
     },
     {
+      "id": "ia_dev_08",
       "pregunta": "¿Por qué la IA es valiosa para la documentación técnica?",
       "keywords": [
         "Porque mantiene la documentación actualizada automáticamente",
@@ -347,6 +385,7 @@ export const EXAMENES_DUMMY: Record<string, PreguntaExamen[]> = {
       "feedback": "Debes reforzar la pág 8, sección IA para Documentación Técnica"
     },
     {
+      "id": "ia_dev_09",
       "pregunta": "¿Qué tipo de tareas mejoran las herramientas de productividad con IA?",
       "keywords": [
         "Gestión de tareas y análisis de requerimientos",
@@ -356,6 +395,7 @@ export const EXAMENES_DUMMY: Record<string, PreguntaExamen[]> = {
       "feedback": "Debes reforzar la pág 9, sección Herramientas de IA para Productividad"
     },
     {
+      "id": "ia_dev_10",
       "pregunta": "¿Cuál es la conclusión principal sobre el uso de IA para developers?",
       "keywords": [
         "Es una competencia clave para mantenerse relevante",
