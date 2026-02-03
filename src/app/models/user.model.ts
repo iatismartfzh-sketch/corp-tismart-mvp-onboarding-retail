@@ -11,6 +11,9 @@ export interface UserLog {
   questionId?: string;
   preguntaRaw?: string;
   respuestaRaw?: string;
+  docTipo?: 'DNI' | 'RUC' | 'LUZ';
+  docPrefijoNormalizado?: string;
+  docNombre?: string;
 }
 export interface UserMock {
   id: string;
