@@ -8,6 +8,9 @@ export interface UserLog {
   feedbackIA: string;
   fueCorregido?: boolean;
   capacitacion?: string;
+  questionId?: string;
+  preguntaRaw?: string;
+  respuestaRaw?: string;
 }
 export interface UserMock {
   id: string;
