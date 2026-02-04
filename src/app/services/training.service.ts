@@ -93,4 +93,76 @@ export class TrainingService {
       console.log(`Log registrado para ${usuario.nombres}:`, nuevoLog);
     }
   }
+
+  registrarEventoDocumento(
+    dni: string,
+    tipoDocumento: 'DNI' | 'RUC' | 'LUZ',
+    nombreArchivo: string,
+    veredicto: 'CORRECTO' | 'INCORRECTO' = 'CORRECTO',
+    feedback: string = 'Archivo recibido',
+    prefijoNormalizado?: string
+  ) {
+    const usuario = USER_POOL.find(u => u.dni === dni);
+    if (!usuario) return;
+
+    if (!usuario.historial) {
+      usuario.historial = [];
+    }
+
+    const etiqueta = tipoDocumento === 'LUZ' ? 'RECIBO DE LUZ' : tipoDocumento;
+    const nuevoLog: UserLog = {
+      fecha: new Date(),
+      fechaString: new Date().toLocaleString('es-PE', {
+        day: '2-digit',
+        month: 'short',
+        hour: '2-digit',
+        minute: '2-digit'
+      }).toUpperCase(),
+      evento: 'DOCUMENTO',
+      detalle: `Documento ${etiqueta}: ${nombreArchivo}`,
+      veredictoIA: veredicto,
+      feedbackIA: feedback,
+      fueCorregido: false,
+      capacitacion: 'DOCUMENTACIÓN',
+      docTipo: tipoDocumento,
+      docPrefijoNormalizado: prefijoNormalizado,
+      docNombre: nombreArchivo
+    };
+
+    usuario.historial.unshift(nuevoLog);
+
+    if (this.isBrowser) {
+      localStorage.setItem('RETAIL_USER_DB', JSON.stringify(USER_POOL));
+    }
+  }
+
+  getPrefijosAprendidos(tipoDocumento: 'DNI' | 'RUC' | 'LUZ'): string[] {
+    if (!this.isBrowser) return [];
+    const raw = localStorage.getItem('RETAIL_DOC_PREFIXES');
+    if (!raw) return [];
+    try {
+      const data = JSON.parse(raw);
+      return Array.isArray(data?.[tipoDocumento]) ? data[tipoDocumento] : [];
+    } catch {
+      return [];
+    }
+  }
+
+  aprenderPrefijoDocumento(tipoDocumento: 'DNI' | 'RUC' | 'LUZ', prefijoNormalizado: string) {
+    if (!this.isBrowser) return;
+    const raw = localStorage.getItem('RETAIL_DOC_PREFIXES');
+    let data: Record<string, string[]> = {};
+    try {
+      data = raw ? JSON.parse(raw) : {};
+    } catch {
+      data = {};
+    }
+
+    const list = Array.isArray(data[tipoDocumento]) ? data[tipoDocumento] : [];
+    if (!list.includes(prefijoNormalizado)) {
+      list.push(prefijoNormalizado);
+      data[tipoDocumento] = list;
+      localStorage.setItem('RETAIL_DOC_PREFIXES', JSON.stringify(data));
+    }
+  }
 }

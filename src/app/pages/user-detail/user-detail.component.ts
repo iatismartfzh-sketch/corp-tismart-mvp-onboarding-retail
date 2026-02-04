@@ -3,6 +3,7 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import { USER_POOL } from '../../data/user-pool';
 import { UserMock, UserLog } from '../../models/user.model';
 import { KnowledgeBaseService } from '../../services/knowledge-base.service';
+import { TrainingService } from '../../services/training.service';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -99,10 +100,18 @@ import { CommonModule } from '@angular/common';
                   <span class="font-bold text-slate-600 uppercase text-[9px] block mb-1">Análisis de la IA:</span>
                   {{ log.feedbackIA }}
 
-                  <button (click)="corregirIA(log)" 
+                  <button *ngIf="log.evento !== 'DOCUMENTO'" (click)="corregirIA(log)" 
                           class="absolute bottom-2 right-2 p-2 bg-white shadow-sm border border-orange-200 rounded-lg text-orange-500 hover:bg-orange-500 hover:text-white transition-all flex items-center gap-1 group">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.989-2.386l-.548-.547z" />
+                    </svg>
+                    <span class="text-[9px] font-bold">ENTRENAR IA</span>
+                  </button>
+
+                  <button *ngIf="log.evento === 'DOCUMENTO' && log.veredictoIA === 'INCORRECTO'" (click)="validarDocumento(log)" 
+                          class="absolute bottom-2 right-2 p-2 bg-white shadow-sm border border-orange-200 rounded-lg text-orange-500 hover:bg-orange-500 hover:text-white transition-all flex items-center gap-1 group">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5-2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <span class="text-[9px] font-bold">ENTRENAR IA</span>
                   </button>
@@ -127,6 +136,7 @@ import { CommonModule } from '@angular/common';
 export class UserDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private kbService = inject(KnowledgeBaseService);
+  private trainingService = inject(TrainingService);
   
   user = signal<UserMock | undefined>(undefined);
 
@@ -162,6 +172,20 @@ export class UserDetailComponent implements OnInit {
     log.fueCorregido = true;
     localStorage.setItem('RETAIL_USER_DB', JSON.stringify(USER_POOL));
     alert('Entrenamiento aplicado. La IA aprenderá para siguientes intentos.');
+  }
+
+  validarDocumento(log: UserLog) {
+    if (!log.docTipo || !log.docPrefijoNormalizado) {
+      alert('No se puede validar: falta el prefijo a entrenar.');
+      return;
+    }
+
+    this.trainingService.aprenderPrefijoDocumento(log.docTipo, log.docPrefijoNormalizado);
+    log.veredictoIA = 'CORRECTO';
+    log.fueCorregido = true;
+    log.feedbackIA = 'Prefijo aprobado por RR.HH.';
+    localStorage.setItem('RETAIL_USER_DB', JSON.stringify(USER_POOL));
+    alert('Validación aplicada. Ese prefijo ya será aceptado.');
   }
 
   get nombresCapacitaciones() {

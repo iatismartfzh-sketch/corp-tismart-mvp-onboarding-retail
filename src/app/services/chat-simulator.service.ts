@@ -186,29 +186,55 @@ export class ChatSimulatorService {
 
   private handleFileProcessing(input: string) {
     const user = this.currentUser();
-    const fileName = input.toLowerCase();
+    const fileName = input.trim();
 
     // Si no es colaborador, seguimos el flujo de checklist
     if (user?.perfil === 'NO_COLABORADOR') {
-      this.addBotMsg(`Analizando documento: ${input}...`);
+      const step = this.docStep();
+      if (step === 'FIN') {
+        this.addBotMsg('✅ Tu expediente ya está completo. Si necesitas actualizar un documento, comunícate con RR.HH.');
+        return;
+      }
+      const validation = this.validateDocumento(fileName, step, user.dni);
+      if (!validation.ok) {
+        if (validation.shouldLog) {
+          this.trainingService.registrarEventoDocumento(
+            user.dni,
+            step,
+            fileName,
+            'INCORRECTO',
+            validation.error,
+            validation.prefijoNormalizado
+          );
+        }
+        this.addBotMsg(`❌ ${validation.error}`);
+        this.addBotMsg(`Tu documento debe mantener el siguiente formato: **${validation.example}**`);
+        return;
+      }
+
+      this.addBotMsg(`Analizando documento: ${fileName}...`);
 
       setTimeout(() => {
-        const step = this.docStep();
-
         if (step === 'DNI') {
           user.documentos!.dni_adjunto = 'ENVIADO'; // Actualiza el modelo
+          this.trackDocumentoCargado(user, fileName);
+          this.trainingService.registrarEventoDocumento(user.dni, 'DNI', fileName);
           this.notifService.push(user.nombres, 'Subió DNI 🪪'); // Dispara notificación
           this.docStep.set('RUC');
           this.addBotMsg('✅ DNI verificado. Ahora, por favor adjunta tu **Ficha RUC**.');
         }
         else if (step === 'RUC') {
           user.documentos!.ruc_adjunto = 'ENVIADO';
+          this.trackDocumentoCargado(user, fileName);
+          this.trainingService.registrarEventoDocumento(user.dni, 'RUC', fileName);
           this.notifService.push(user.nombres, 'Subió RUC 📄');
           this.docStep.set('LUZ');
           this.addBotMsg('✅ RUC verificado. Finalmente, adjunta tu **Recibo de Luz**.');
         }
         else if (step === 'LUZ') {
           user.documentos!.recibo_luz = 'ENVIADO';
+          this.trackDocumentoCargado(user, fileName);
+          this.trainingService.registrarEventoDocumento(user.dni, 'LUZ', fileName);
           user.progreso = 'EN REVISION'; // Finaliza el estado general
           this.notifService.push(user.nombres, 'Completó carga de archivos ✅');
           this.docStep.set('FIN');
@@ -218,12 +244,85 @@ export class ChatSimulatorService {
       }, 1500);
     } else {
       // Comportamiento original para Colaboradores
-      this.addBotMsg(`Analizando: ${input}...`);
+      const lowerName = fileName.toLowerCase();
+      this.addBotMsg(`Analizando: ${fileName}...`);
       setTimeout(() => {
-        if (fileName.includes('dni')) this.addBotMsg('✅ DNI verificado.');
+        if (lowerName.includes('dni')) this.addBotMsg('✅ DNI verificado.');
         else this.addBotMsg('📄 Archivo recibido.');
       }, 2000);
     }
+  }
+
+  private validateDocumento(fileName: string, step: 'DNI' | 'RUC' | 'LUZ', dni: string) {
+    const spec = this.getDocumentoSpec(step, dni);
+    const lower = fileName.toLowerCase();
+    const expectedExt = spec.ext;
+
+    if (!lower.endsWith(expectedExt)) {
+      return {
+        ok: false,
+        error: `Formato inválido. El archivo debe ser ${expectedExt.toUpperCase().replace('.', '')}.`,
+        example: spec.example,
+        shouldLog: false
+      };
+    }
+
+    if (!lower.includes(dni)) {
+      return {
+        ok: false,
+        error: `Número de DNI inválido. Vuelva intentarlo, porfavor DNI: ${dni}.`,
+        example: spec.example,
+        shouldLog: false
+      };
+    }
+
+    const normalizedPrefix = this.normalizarPrefijo(fileName, dni, expectedExt);
+    const expectedNormalized = this.normalizarPrefijo(spec.prefix, dni, '');
+    const learned = this.trainingService.getPrefijosAprendidos(step);
+    const hasLearned = learned.includes(normalizedPrefix);
+
+    if (normalizedPrefix !== expectedNormalized && !hasLearned) {
+      return {
+        ok: false,
+        error: 'Prefijo no reconocido. Se registró para aprendizaje. Intentalo nuevamente, Porfavor.',
+        example: spec.example,
+        shouldLog: true,
+        prefijoNormalizado: normalizedPrefix
+      };
+    }
+
+    return { ok: true, example: spec.example, shouldLog: false };
+  }
+
+  private getDocumentoSpec(step: 'DNI' | 'RUC' | 'LUZ', dni: string) {
+    if (step === 'DNI') {
+      return { prefix: `DNI_${dni}`, ext: '.jpg', example: `DNI_${dni}.jpg` };
+    }
+    if (step === 'RUC') {
+      return { prefix: `RUC_${dni}`, ext: '.pdf', example: `RUC_${dni}.pdf` };
+    }
+    return { prefix: `LUZ_${dni}`, ext: '.pdf', example: `LUZ_${dni}.pdf` };
+  }
+
+  private trackDocumentoCargado(user: UserMock, fileName: string) {
+    if (!user.documentosCargados) {
+      user.documentosCargados = [];
+    }
+    if (!user.documentosCargados.includes(fileName)) {
+      user.documentosCargados.push(fileName);
+    }
+  }
+
+  private normalizarPrefijo(fileName: string, dni: string, ext: string) {
+    let base = fileName;
+    if (ext && base.toLowerCase().endsWith(ext)) {
+      base = base.slice(0, -ext.length);
+    }
+    const dniIndex = base.indexOf(dni);
+    if (dniIndex >= 0) {
+      base = base.slice(0, dniIndex);
+    }
+    return base.toLowerCase().replace(/[^a-z]/g, '');
   }
 
 
