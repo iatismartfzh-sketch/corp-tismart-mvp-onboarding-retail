@@ -296,7 +296,7 @@ export class ChatSimulatorService {
 
   private getDocumentoSpec(step: 'DNI' | 'RUC' | 'LUZ', dni: string) {
     if (step === 'DNI') {
-      return { prefix: `DNI_${dni}`, ext: '.jpg', example: `DNI_${dni}.jpg` };
+      return { prefix: `DNI_${dni}`, ext: '.png', example: `DNI_${dni}.png` };
     }
     if (step === 'RUC') {
       return { prefix: `RUC_${dni}`, ext: '.pdf', example: `RUC_${dni}.pdf` };

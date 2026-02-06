@@ -18,6 +18,49 @@ import { RouterModule } from '@angular/router';
     <div class="p-10 max-w-[1600px] mx-auto animate-in fade-in duration-700 relative">
       <!-- ... encabezado y cards (sin cambios) ... -->
 
+      <header class="flex justify-between items-end mb-10">
+        <div>
+          <h1 class="text-4xl font-black tracking-tight text-slate-800">¡Bienvenido de vuelta! 👋</h1>
+          <p class="text-slate-400 font-medium mt-1 uppercase text-[10px] tracking-[0.2em]">Monitoreo de Onboarding e IA en tiempo real</p>
+        </div>
+        <div class="flex gap-4">
+           <button (click)="showModal = true" class="bg-indigo-600 text-white px-8 py-4 rounded-2xl font-bold shadow-xl shadow-indigo-200 hover:scale-105 active:scale-95 transition-all">
+             + Programar Capacitación
+           </button>
+           <button (click)="exportData()" class="bg-emerald-500 text-white px-6 py-4 rounded-2xl font-bold shadow-xl shadow-emerald-100 hover:scale-105 transition-all">
+             📥 Exportar
+           </button>
+        </div>
+      </header>
+
+      <div class="grid grid-cols-4 gap-6 mb-12">
+        <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm relative overflow-hidden group">
+          <p class="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-2">Total Usuarios</p>
+          <h3 class="text-4xl font-black text-slate-800">{{ stats().total }}</h3>
+          <div class="mt-4 flex items-center gap-2 text-emerald-500 font-bold text-xs italic">
+            <span>↑ 5% vs anterior</span>
+          </div>
+        </div>
+
+        <div class="bg-white p-8 rounded-[2.5rem] border-t-4 border-t-red-500 shadow-sm">
+          <p class="text-red-500 text-[10px] font-black uppercase tracking-widest mb-2">DNI Vencidos</p>
+          <h3 class="text-4xl font-black text-slate-800">{{ stats().vencidos }}</h3>
+          <p class="mt-4 text-slate-400 text-xs font-bold italic">Acción inmediata</p>
+        </div>
+
+        <div class="bg-white p-8 rounded-[2.5rem] border-t-4 border-t-amber-400 shadow-sm">
+          <p class="text-amber-500 text-[10px] font-black uppercase tracking-widest mb-2">En Revisión / IA</p>
+          <h3 class="text-4xl font-black text-slate-800">{{ stats().pendientes }}</h3>
+          <p class="mt-4 text-slate-400 text-xs font-bold italic">Monitoreo activo</p>
+        </div>
+
+        <div class="bg-white p-8 rounded-[2.5rem] border-t-4 border-t-emerald-500 shadow-sm">
+          <p class="text-emerald-500 text-[10px] font-black uppercase tracking-widest mb-2">Completados</p>
+          <h3 class="text-4xl font-black text-slate-800">{{ stats().completados }}</h3>
+          <p class="mt-4 text-slate-400 text-xs font-bold italic">Situación estable</p>
+        </div>
+      </div>
+
       <section class="bg-white rounded-[3rem] shadow-2xl shadow-slate-200/40 p-10 border border-slate-50">
         <div class="flex justify-between items-center mb-10">
            <div>
@@ -26,8 +69,8 @@ import { RouterModule } from '@angular/router';
            </div>
            <div class="bg-slate-100 p-1.5 rounded-2xl flex gap-1">
               <button (click)="setFilter('TODOS')" class="px-6 py-2.5 text-xs font-black rounded-xl transition-all" [class.bg-white]="filterSelected() === 'TODOS'" [class.shadow-md]="filterSelected() === 'TODOS'">TODOS</button>
-              <button (click)="setFilter('COLABORADOR')" class="px-6 py-2.5 text-xs font-black rounded-xl transition-all" [class.bg-white]="filterSelected() === 'COLABORADOR'" [class.shadow-md]="filterSelected() === 'COLABORADOR'">INTERNOS</button>
-              <button (click)="setFilter('NO_COLABORADOR')" class="px-6 py-2.5 text-xs font-black rounded-xl transition-all" [class.bg-white]="filterSelected() === 'NO_COLABORADOR'" [class.shadow-md]="filterSelected() === 'NO_COLABORADOR'">PROVEEDORES</button>
+              <button (click)="setFilter('COLABORADOR')" class="px-6 py-2.5 text-xs font-black rounded-xl transition-all" [class.bg-white]="filterSelected() === 'COLABORADOR'" [class.shadow-md]="filterSelected() === 'COLABORADOR'">COLABORADORES</button>
+              <button (click)="setFilter('NO_COLABORADOR')" class="px-6 py-2.5 text-xs font-black rounded-xl transition-all" [class.bg-white]="filterSelected() === 'NO_COLABORADOR'" [class.shadow-md]="filterSelected() === 'NO_COLABORADOR'">NO COLABORADORES</button>
            </div>
         </div>
 
@@ -107,10 +150,73 @@ import { RouterModule } from '@angular/router';
         </table>
       </section>
 
+      <div *ngIf="showModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[150] flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-2xl rounded-[3rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
+          <div class="p-10">
+            <div class="flex justify-between items-start mb-8">
+              <div>
+                <h2 class="text-3xl font-black text-slate-800 tracking-tight">Programar Capacitación</h2>
+                <p class="text-slate-400 font-bold text-xs uppercase tracking-widest mt-1 italic">Envío masivo vía WhatsApp Business</p>
+              </div>
+              <button (click)="showModal = false" class="text-slate-300 hover:text-red-500 transition-colors text-2xl">✕</button>
+            </div>
+
+            <div class="space-y-6">
+              <div>
+                <label class="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3 ml-1 italic text-indigo-600">Módulo de Capacitación</label>
+                <select [(ngModel)]="selectedModulo" class="w-full bg-slate-50 border-none p-5 rounded-2xl font-bold text-slate-700 focus:ring-2 focus:ring-indigo-500 outline-none">
+                  <option *ngFor="let mod of modulos; let i = index" [value]="i">{{ mod }}</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3 ml-1 italic text-indigo-600">Seleccionar Destinatarios ({{ selectedDnis.length }})</label>
+                <div class="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-2 custom-scroll">
+                  <div *ngFor="let user of colaboradoresOnly" 
+                       (click)="toggleUser(user.dni)"
+                       [class.bg-indigo-600]="selectedDnis.includes(user.dni)"
+                       [class.text-white]="selectedDnis.includes(user.dni)"
+                       class="p-4 rounded-2xl bg-slate-50 cursor-pointer hover:bg-indigo-50 transition-all flex items-center gap-3">
+                    <div class="w-2 h-2 rounded-full" [class.bg-indigo-400]="!selectedDnis.includes(user.dni)" [class.bg-white]="selectedDnis.includes(user.dni)"></div>
+                    <span class="text-xs font-black uppercase tracking-tighter">{{ user.apellidos }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3 ml-1 italic text-indigo-600">Nota Adicional para la IA</label>
+                <textarea [(ngModel)]="mensajeAdmin" placeholder="Ej: Hola, tienes pendiente este curso de seguridad..." 
+                          class="w-full bg-slate-50 border-none p-5 rounded-2xl font-medium text-slate-700 h-28 focus:ring-2 focus:ring-indigo-500 outline-none resize-none"></textarea>
+              </div>
+
+              <div class="pt-4 flex gap-4">
+                <button (click)="enviarMasivo()" class="flex-1 bg-indigo-600 text-white py-5 rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-indigo-200 hover:scale-[1.02] active:scale-95 transition-all">
+                  🚀 Iniciar Envío Masivo
+                </button>
+                <button (click)="showModal = false" class="px-8 bg-slate-100 text-slate-500 py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-slate-200 transition-all">
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div *ngIf="currentNotif()" class="fixed bottom-10 right-10 bg-slate-900 text-white p-6 rounded-[2rem] shadow-2xl flex items-center gap-5 animate-in slide-in-from-right duration-500 border-l-8 border-emerald-500 z-[200]">
+         <div class="w-12 h-12 bg-emerald-500/20 rounded-full flex items-center justify-center text-2xl">🔔</div>
+         <div>
+           <p class="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-1 italic">Notificación en tiempo real</p>
+           <p class="text-sm font-bold leading-tight">{{ currentNotif()?.msg }}</p>
+         </div>
+      </div>
       <!-- ... modal y notificaciones (sin cambios) ... -->
     </div>
   `,
-  styles: [``]
+   styles: [`
+    :host { display: block; }
+    .custom-scroll::-webkit-scrollbar { width: 4px; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+  `]
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   private exportService = inject(ExportService);

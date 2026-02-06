@@ -2,11 +2,13 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { FloatingChatComponent } from '../../shared/FloatingChatComponent';
+
 
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, FloatingChatComponent],
   template: `
     <div class="flex h-screen bg-[#f8fafc] font-sans text-slate-900 overflow-hidden">
       
@@ -27,6 +29,15 @@ import { AuthService } from '../../services/auth.service';
             <span class="text-xl">📊</span> Dashboard
           </a>
           
+          <a routerLink="/knowledge" 
+            routerLinkActive="bg-indigo-600 shadow-lg shadow-indigo-900/50 text-white" 
+            class="flex items-center gap-4 p-4 rounded-2xl font-bold text-slate-400 hover:text-white hover:bg-slate-800 transition-all group">
+            
+            <span class="text-xl group-hover:scale-110 transition-transform">📖</span> 
+            
+            <span>Cursos</span>
+          </a>
+
           <a routerLink="/simulator" 
              routerLinkActive="bg-indigo-600 shadow-lg shadow-indigo-900/50 text-white" 
              class="flex items-center gap-4 p-4 rounded-2xl font-bold text-slate-400 hover:text-white hover:bg-slate-800 transition-all group">
@@ -59,8 +70,12 @@ import { AuthService } from '../../services/auth.service';
 
         <div class="flex-1 overflow-y-auto">
           <router-outlet></router-outlet>
+          
         </div>
       </main>
+
+      <app-floating-chat></app-floating-chat>
+
     </div>
   `
 })
