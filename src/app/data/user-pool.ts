@@ -3,11 +3,11 @@ import { UserMock } from '../models/user.model';
 export let USER_POOL: UserMock[] = [
   {
     id: 'USR-101',
-    dni: '11111111',
+    dni: '46423657',
     nombres: 'Juan',
-    apellidos: 'Quispe',
+    apellidos: 'Zavala Quispe',
     email: 'juan@retail.pe',
-    ruc: '10111111111',
+    ruc: '10464236576',
     estadoRuc: 'ACTIVO/HABIDO',
     sistemaPensiones: 'AFP',
     hijos: 0,
@@ -18,11 +18,11 @@ export let USER_POOL: UserMock[] = [
   },
   {
     id: 'USR-102',
-    dni: '22222222',
+    dni: '46657500',
     nombres: 'Maria',
-    apellidos: 'Garcia',
+    apellidos: 'Henriquez Garcia',
     email: 'maria@retail.pe',
-    ruc: '10222222222',
+    ruc: '10466575006',
     estadoRuc: 'ACTIVO/HABIDO',
     sistemaPensiones: 'ONP',
     hijos: 1,
@@ -33,11 +33,11 @@ export let USER_POOL: UserMock[] = [
   },
   {
     id: 'USR-103',
-    dni: '33333333',
+    dni: '47865545',
     nombres: 'Augusto',
-    apellidos: 'Campos Campos',
+    apellidos: 'Castillo Campos',
     email: 'augusto.campos@hotmail.com',
-    ruc: '20333333333',
+    ruc: '10478655456',
     estadoRuc: 'ACTIVO/HABIDO',
     sistemaPensiones: 'PENDIENTE',
     hijos: 0,
@@ -51,19 +51,19 @@ export let USER_POOL: UserMock[] = [
       recibo_luz: 'PENDIENTE'
     }
   },
-    {
+  {
     id: 'USR-104',
-    dni: '44444444',
+    dni: '43567894',
     nombres: 'Julio',
-    apellidos: 'Sanchez Sanchez',
+    apellidos: 'Sarmiento Sanchez',
     email: 'julio.sanchez@hotmail.com',
-    ruc: '20333333333',
+    ruc: '10435678946',
     estadoRuc: 'ACTIVO/HABIDO',
     sistemaPensiones: 'PENDIENTE',
     hijos: 0,
     documentosCargados: [],
     progreso: 'DOCUMENTACION',
-    perfil: 'NO_COLABORADOR', // El Proveedor es NO Colaborador
+    perfil: 'NO_COLABORADOR',
     dniVencido: false,
     documentos: {
       dni_adjunto: 'PENDIENTE',
@@ -76,11 +76,11 @@ export let USER_POOL: UserMock[] = [
 export let USER_POOL_NOTIFY: UserMock[] = [
   {
     id: 'USR-101',
-    dni: '11111111',
+    dni: '46423657',
     nombres: 'Juan',
-    apellidos: 'Quispe',
+    apellidos: 'Zavala Quispe',
     email: 'juan@retail.pe',
-    ruc: '10111111111',
+    ruc: '10464236576',
     estadoRuc: 'ACTIVO/HABIDO',
     sistemaPensiones: 'AFP',
     hijos: 0,
@@ -91,11 +91,11 @@ export let USER_POOL_NOTIFY: UserMock[] = [
   },
   {
     id: 'USR-102',
-    dni: '22222222',
+    dni: '46657500',
     nombres: 'Maria',
-    apellidos: 'Garcia',
+    apellidos: 'Henriquez Garcia',
     email: 'maria@retail.pe',
-    ruc: '10222222222',
+    ruc: '10466575006',
     estadoRuc: 'ACTIVO/HABIDO',
     sistemaPensiones: 'ONP',
     hijos: 1,
@@ -106,11 +106,11 @@ export let USER_POOL_NOTIFY: UserMock[] = [
   },
   {
     id: 'USR-103',
-    dni: '33333333',
+    dni: '47865545',
     nombres: 'Augusto',
-    apellidos: 'Campos Campos',
+    apellidos: 'Castillo Campos',
     email: 'augusto.campos@hotmail.com',
-    ruc: '20333333333',
+    ruc: '10478655456',
     estadoRuc: 'ACTIVO/HABIDO',
     sistemaPensiones: 'PENDIENTE',
     hijos: 0,
@@ -124,13 +124,13 @@ export let USER_POOL_NOTIFY: UserMock[] = [
       recibo_luz: 'ENVIADO'
     }
   },
-    {
+  {
     id: 'USR-104',
-    dni: '44444444',
+    dni: '43567894',
     nombres: 'Julio',
-    apellidos: 'Sanchez Sanchez',
+    apellidos: 'Sarmiento Sanchez',
     email: 'julio.sanchez@hotmail.com',
-    ruc: '20333333333',
+    ruc: '10435678946',
     estadoRuc: 'ACTIVO/HABIDO',
     sistemaPensiones: 'PENDIENTE',
     hijos: 0,
