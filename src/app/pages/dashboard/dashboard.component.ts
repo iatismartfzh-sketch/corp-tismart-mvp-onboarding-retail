@@ -18,6 +18,49 @@ import { RouterModule } from '@angular/router';
     <div class="p-10 max-w-[1600px] mx-auto animate-in fade-in duration-700 relative">
       <!-- ... encabezado y cards (sin cambios) ... -->
 
+      <header class="flex justify-between items-end mb-10">
+        <div>
+          <h1 class="text-4xl font-black tracking-tight text-slate-800">¡Bienvenido de vuelta! 👋</h1>
+          <p class="text-slate-400 font-medium mt-1 uppercase text-[10px] tracking-[0.2em]">Monitoreo de Onboarding e IA en tiempo real</p>
+        </div>
+        <div class="flex gap-4">
+           <button (click)="showModal = true" class="bg-indigo-600 text-white px-8 py-4 rounded-2xl font-bold shadow-xl shadow-indigo-200 hover:scale-105 active:scale-95 transition-all">
+             + Programar Capacitación
+           </button>
+           <button (click)="exportData()" class="bg-emerald-500 text-white px-6 py-4 rounded-2xl font-bold shadow-xl shadow-emerald-100 hover:scale-105 transition-all">
+             📥 Exportar
+           </button>
+        </div>
+      </header>
+
+      <div class="grid grid-cols-4 gap-6 mb-12">
+        <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm relative overflow-hidden group">
+          <p class="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-2">Total Usuarios</p>
+          <h3 class="text-4xl font-black text-slate-800">{{ stats().total }}</h3>
+          <div class="mt-4 flex items-center gap-2 text-emerald-500 font-bold text-xs italic">
+            <span>↑ 5% vs anterior</span>
+          </div>
+        </div>
+
+        <div class="bg-white p-8 rounded-[2.5rem] border-t-4 border-t-red-500 shadow-sm">
+          <p class="text-red-500 text-[10px] font-black uppercase tracking-widest mb-2">DNI Vencidos</p>
+          <h3 class="text-4xl font-black text-slate-800">{{ stats().vencidos }}</h3>
+          <p class="mt-4 text-slate-400 text-xs font-bold italic">Acción inmediata</p>
+        </div>
+
+        <div class="bg-white p-8 rounded-[2.5rem] border-t-4 border-t-amber-400 shadow-sm">
+          <p class="text-amber-500 text-[10px] font-black uppercase tracking-widest mb-2">En Revisión / IA</p>
+          <h3 class="text-4xl font-black text-slate-800">{{ stats().pendientes }}</h3>
+          <p class="mt-4 text-slate-400 text-xs font-bold italic">Monitoreo activo</p>
+        </div>
+
+        <div class="bg-white p-8 rounded-[2.5rem] border-t-4 border-t-emerald-500 shadow-sm">
+          <p class="text-emerald-500 text-[10px] font-black uppercase tracking-widest mb-2">Completados</p>
+          <h3 class="text-4xl font-black text-slate-800">{{ stats().completados }}</h3>
+          <p class="mt-4 text-slate-400 text-xs font-bold italic">Situación estable</p>
+        </div>
+      </div>
+      
       <section class="bg-white rounded-[3rem] shadow-2xl shadow-slate-200/40 p-10 border border-slate-50">
         <div class="flex justify-between items-center mb-10">
            <div>
